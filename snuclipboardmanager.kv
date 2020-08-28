@@ -1,0 +1,269 @@
+#:kivy 1.0
+#:import kivy kivy
+
+<PresetFolder>:
+    NormalButton:
+        width: app.button_scale
+        warn: True
+        text: 'X'
+        on_release: app.remove_presets_folder(root.path)
+    WideButton:
+        on_release: app.set_presets_folder(root.path)
+        text: root.path
+
+<ClipPreset>:
+    canvas.before:
+        Color:
+            rgba: (0, 0, 0, .5) if root.viewtype == 'heading' else ((0, 1, 0, .5) if self.adder else (0, 0, 0, 0))
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: (0, 0, 0, .5) if self.hidden else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.pos
+            size: self.size[0], 4
+    adder: self.viewtype in ['adder-item', 'adder-heading']
+    edit: app.root.ids.editArea.current == 'edit' and app.modify_mode and not self.adder
+    size_hint_y: None
+    ButtonBase:
+        font_size: app.text_scale
+        disabled: False if root.edit else True
+        width: app.button_scale if root.edit else 0
+        size_hint_x: None
+        opacity: 1 if root.edit else 0
+        text: 'X' if root.edit else ''
+        warn: True
+        on_release: app.delete_preset(root)
+    NormalLabelClickable:
+        text: root.text
+        on_release: app.clickfade(self)
+        on_release: root.click()
+
+<ClipHistoryPreset>:
+    canvas.before:
+        Color:
+            rgba: self.bgcolor
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    orientation: 'horizontal'
+    NormalButton:
+        disabled: root.index == 0
+        text: 'X'
+        warn: True
+        on_release: app.remove_history_item(root.index)
+    LeftNormalLabelClickable:
+        padding_x: 4
+        text: root.text
+        on_release: app.clickfade(self)
+        on_release: app.set_history_item(root.index)
+
+<ClipHistoryPresetShort>:
+    canvas.before:
+        Color:
+            rgba: self.bgcolor
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    orientation: 'horizontal'
+    LeftNormalLabelClickable:
+        padding_x: 4
+        text: root.text
+        on_release: app.clickfade(self)
+        on_release: app.set_history_item(root.index)
+
+<InstantAddPresetContent>:
+    cols:1
+    NormalLabel:
+        text: "Preset Name:"
+    NormalInput:
+        id: editName
+        multiline: False
+        text: app.edit_name
+        on_text: app.edit_name = self.text
+        focus: True
+    NormalLabel:
+        text: "Preset Content:"
+    NormalInput:
+        multiline: True
+        size_hint_y: 1
+        text: app.edit_content
+        on_text: app.edit_content = self.text
+    GridLayout:
+        cols: 2
+        size_hint_y: None
+        height: app.button_scale
+        WideButton:
+            text: 'Save'
+            disabled: not app.edit_name
+            on_release: root.dispatch('on_answer','yes')
+        WideButton:
+            text: 'Cancel'
+            on_release: root.dispatch('on_answer', 'no')
+
+<MainScreen>:
+    canvas.before:
+        Color:
+            rgba: app.theme.background
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'horizontal'
+        BoxLayout:
+            size_hint_x: None if app.modify_mode else 1
+            width: app.window_width_target if app.modify_mode else app.window_width_target
+            orientation: 'vertical'
+            WideButton:
+                text: 'More...'
+                on_release: app.settings_mode()
+            NormalRecycleView:
+                canvas.before:
+                    Color:
+                        rgba: app.theme.main_background
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                        source: 'data/mainbg.png'
+                id: historyShort
+                size_hint_y: None
+                height: app.button_scale * app.main_history_length
+                data: app.clipboard_history[:app.main_history_length]
+                viewclass: 'ClipHistoryPresetShort'
+                SelectableRecycleBoxLayout:
+                    default_size: None, app.button_scale
+                    default_size_hint: 1, None
+                    orientation: 'vertical'
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: self.minimum_height
+            NormalRecycleView:
+                id: presets
+                data: app.clipboard_data_display
+                viewclass: 'ClipPreset'
+                SelectableRecycleBoxLayout:
+                    orientation: 'vertical'
+                    size_hint_x: 1
+                    size_hint_y: None
+                    height: self.minimum_height
+            WideButton:
+                disabled: not app.show_undo
+                height: 0 if self.disabled else app.button_scale
+                opacity: 0 if self.disabled else 1
+                text: 'Undo Clipboard'
+                on_release: app.undo_clipboard()
+            WideButton:
+                disabled: not app.show_strip
+                height: 0 if self.disabled else app.button_scale
+                opacity: 0 if self.disabled else 1
+                text: 'Strip Clipboard'
+                on_release: app.strip_clipboard()
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint_x: 1 if app.modify_mode else 0
+            opacity: 1 if app.modify_mode else 0
+            disabled: False if app.modify_mode else True
+            BoxLayout:
+                orientation: 'horizontal'
+                size_hint_y: None
+                height: app.button_scale
+                WideToggle:
+                    text: 'History'
+                    state: 'down' if editArea.current == 'history' else 'normal'
+                    on_release: editArea.current = 'history'
+                    on_release: self.state = 'down'
+                WideToggle:
+                    text: 'Edit Presets'
+                    state: 'down' if editArea.current == 'edit' else 'normal'
+                    on_release: editArea.current = 'edit'
+                    on_release: self.state = 'down'
+                WideToggle:
+                    text: 'Select Presets'
+                    state: 'down' if editArea.current == 'select' else 'normal'
+                    on_release: editArea.current = 'select'
+                    on_release: self.state = 'down'
+                SettingsButton:
+            ScreenManager:
+                id: editArea
+                Screen:
+                    name: 'history'
+                    MainArea:
+                        orientation: 'vertical'
+                        BoxLayout:
+                            size_hint_y: None
+                            height: app.button_scale
+                            orientation: 'horizontal'
+                            NormalLabel:
+                                text: 'History:'
+                            NormalButton:
+                                size_hint_x: 0.25
+                                text: 'Clear'
+                                on_release: app.clear_history()
+                        NormalRecycleView:
+                            id: historyFull
+                            data: app.clipboard_history
+                            viewclass: 'ClipHistoryPreset'
+                            SelectableRecycleBoxLayout:
+                                default_size: None, app.button_scale
+                                default_size_hint: 1, None
+                                orientation: 'vertical'
+                                size_hint_x: 1
+                                size_hint_y: None
+                                height: self.minimum_height
+                        NormalLabel:
+                            text: 'Current Clipboard:'
+                        NormalInput:
+                            context_menu: False
+                            size_hint_y: 1
+                            text: app.current_clipboard
+                            on_text: app.set_clipboard_from_widget(self)
+                EditScreen:
+                    name: 'edit'
+                    MainArea:
+                        orientation: 'vertical'
+                        WideButton:
+                            text: "Open Preset Folder"
+                            on_release: app.browse_presets()
+                        MediumSpacer:
+                        WideButton:
+                            text: "Reload Presets"
+                            on_release: app.load_clipboards(edit=True)
+                        MediumSpacer:
+                        LeftNormalLabel:
+                            text: '  Editing: '+app.edit_path
+                        WideButton:
+                            text: 'Save'
+                            on_release: app.save_edit()
+                        NormalInput:
+                            multiline: False
+                            text: app.edit_name
+                            on_text: app.edit_name = self.text
+                        LeftNormalLabel:
+                            text: '  Content:'
+                        NormalInput:
+                            id: editContentArea
+                            size_hint_y: 1
+                            text: app.edit_content
+                            on_text: app.edit_content = self.text
+                Screen:
+                    name: 'select'
+                    MainArea:
+                        orientation: 'vertical'
+                        LeftNormalLabel:
+                            text: "  Current: "+app.clipboard_folder
+                        MediumSpacer:
+                        WideButton:
+                            text: 'Add Preset Folder...'
+                            on_release: app.add_presets_folder()
+                        MediumSpacer:
+                        NormalRecycleView:
+                            data: app.clipboard_folders
+                            viewclass: 'PresetFolder'
+                            SelectableRecycleBoxLayout:
+                                default_size: None, app.button_scale
+                                default_size_hint: 1, None
+                                orientation: 'vertical'
+                                size_hint_x: 1
+                                size_hint_y: None
+                                height: self.minimum_height
