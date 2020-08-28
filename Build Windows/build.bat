@@ -1,4 +1,5 @@
 rmdir /s /q "dist"
+del "Snu Clipboard Manager Installer v0.9.exe"
 python -m PyInstaller -w "Snu Clipboard Manager.spec"
 del "dist\Snu Clipboard Manager\libgstreamer-1.0-0.dll"
 del "dist\Snu Clipboard Manager\libglib-2.0-0.dll"
@@ -28,12 +29,13 @@ del "dist\Snu Clipboard Manager\_ssl.pyd"
 del "dist\Snu Clipboard Manager\_bz2.pyd"
 del "dist\Snu Clipboard Manager\_hashlib.pyd"
 del "dist\Snu Clipboard Manager\_multiprocessing.pyd"
-
 del "dist\Snu Clipboard Manager\kivy_install\data\fonts\DejaVuSans.ttf"
 del "dist\Snu Clipboard Manager\kivy_install\modules\_webdebugger.py"
 rmdir /s /q "dist\Snu clipboard Manager\kivy_install\modules\__pycache__"
-
 del "dist\Snu Clipboard Manager\api-ms-win-*.dll"
 del "dist\Snu Clipboard Manager\LICENSE.*.txt"
 rmdir /s /q "build"
+xcopy "installer.nsi" "dist\Snu Clipboard Manager\"
+"C:\Program Files (x86)\NSIS\makensis.exe" "dist\Snu Clipboard Manager\installer.nsi"
+move "dist\Snu Clipboard Manager\Snu Clipboard Manager Installer v0.9.exe" .
 cmd /k
