@@ -41,6 +41,8 @@ from kivy.properties import ObjectProperty, ListProperty
 from kivy.core.clipboard import Clipboard
 from kivy.utils import platform
 from kivy.metrics import cm
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
 app = None
 
 
