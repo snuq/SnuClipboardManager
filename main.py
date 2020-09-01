@@ -164,6 +164,9 @@ class SnuClipboardManager(NormalApp):
     edit_section = StringProperty()
     edit_content = StringProperty()
 
+    def dismiss_popup(self, *_):
+        self.popup = None
+
     def rescale_interface(self, *_, force=False):
         """Called when the window changes resolution, calculates variables dependent on screen size"""
 
@@ -342,15 +345,14 @@ class SnuClipboardManager(NormalApp):
             confirm_text = "This single preset will be deleted permanently"
         if self.popup:
             self.popup.dismiss()
-            self.popup = None
         content = ConfirmPopupContent(text=confirm_text, yes_text='Delete', no_text="Don't Delete", warn_yes=True)
         content.bind(on_answer=self.delete_preset_answer)
         self.popup = NormalPopup(title="Confirm Delete ", content=content, size_hint=(1, None), size=(1000, self.button_scale * 4))
+        self.popup.bind(on_dismiss=self.dismiss_popup)
         self.popup.open()
 
     def delete_preset_answer(self, instance, answer):
         self.popup.dismiss()
-        self.popup = None
         if answer == 'yes':
             if self.preset_type == 'item':
                 if os.path.isfile(self.preset_element):
@@ -377,12 +379,12 @@ class SnuClipboardManager(NormalApp):
             content = InputPopupContent(text="Rename folder to:", input_text=preset.text, hint='Folder Name')
             content.bind(on_answer=self.rename_folder_answer)
             self.popup = NormalPopup(title="Rename Folder", content=content, size_hint=(1, None), size=(1000, self.button_scale * 5))
+            self.popup.bind(on_dismiss=self.dismiss_popup)
             self.popup.open()
 
     def rename_folder_answer(self, instance, answer):
         new_name = instance.ids["input"].text.strip(' ')
         self.popup.dismiss()
-        self.popup = None
         if not new_name:
             return
         if answer == 'yes':
@@ -421,7 +423,6 @@ class SnuClipboardManager(NormalApp):
     def instant_add(self, path, section):
         if self.popup:
             self.popup.dismiss()
-            self.popup = None
         if not self.modify_mode:
             self.settings_mode()
         self.edit_type = 'item'
@@ -434,11 +435,11 @@ class SnuClipboardManager(NormalApp):
         content = InstantAddPresetContent()
         content.bind(on_answer=self.instant_add_preset_answer)
         self.popup = NormalPopup(title='Create File', content=content, size_hint=(1, 1), size=(1000, 2000))
+        self.popup.bind(on_dismiss=self.dismiss_popup)
         self.popup.open()
 
     def instant_add_preset_answer(self, instance, answer):
         self.popup.dismiss()
-        self.popup = None
         if answer == 'yes':
             filename = os.path.join(self.edit_path, self.edit_name) + '.txt'
             if os.path.exists(filename):
@@ -462,17 +463,16 @@ class SnuClipboardManager(NormalApp):
             title_text = "Create File"
         if self.popup:
             self.popup.dismiss()
-            self.popup = None
 
         content = InputPopupContent(text=input_text, hint=hint_text)
         content.bind(on_answer=self.add_preset_answer)
         self.popup = NormalPopup(title=title_text, content=content, size_hint=(1, None), size=(1000, self.button_scale * 5))
+        self.popup.bind(on_dismiss=self.dismiss_popup)
         self.popup.open()
 
     def add_preset_answer(self, instance, answer):
         preset_name = instance.ids['input'].text.strip(' ')
         self.popup.dismiss()
-        self.popup = None
         if not preset_name:
             return
         if answer == 'yes':
