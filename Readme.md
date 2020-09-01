@@ -109,6 +109,10 @@ A tray icon is shown that will allow provide access to Snu Clipboard Manager.
 Note: Only available on Windows currently.  
 When the window is minimized, it will be hidden and can only be restored from the tray icon. Will only function if the tray icon is enabled.  
 
+**Disallow Duplicates**
+Prevent duplicate entries from being kept in the clipboard history.  As soon as a new clipboard is saved, previous exact copies of the same text will be removed.  
+
+
 #### Main Window Appearance  
 **Show Undo Clipboard Button**  
 Add a button to the main window that will reverse the last clipboard action.

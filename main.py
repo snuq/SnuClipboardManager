@@ -278,6 +278,11 @@ class SnuClipboardManager(NormalApp):
         if index > 0:
             self.clipboard_history.pop(index)
 
+    def remove_history_matches(self, clipboard):
+        for clip in reversed(self.clipboard_history):
+            if clip['text'] == clipboard:
+                self.clipboard_history.remove(clip)
+
     def set_history_item(self, index):
         try:
             history_item = self.clipboard_history.pop(index)
@@ -314,6 +319,8 @@ class SnuClipboardManager(NormalApp):
         clipboard = Clipboard.paste()
         if clipboard and self.current_clipboard != clipboard:
             self.current_clipboard = clipboard
+            if self.config.getboolean('Settings', 'no_duplicates'):
+                self.remove_history_matches(clipboard)
             self.clipboard_history.insert(0, {'text': clipboard})
             self.clipboard_history = self.clipboard_history[:self.max_history]
 
@@ -636,6 +643,7 @@ class SnuClipboardManager(NormalApp):
                 'showtray': 1,
                 'auto_shrink': 0,
                 'auto_expand': 0,
+                'no_duplicates': 0,
                 'showundo': 1,
                 'showstrip': 0,
                 'presetsfolder': '',
@@ -709,6 +717,13 @@ class SnuClipboardManager(NormalApp):
                 "section": "Settings",
                 "key": "minimizetray"
             })
+        settingspanel.append({
+            "type": "bool",
+            "title": "Disallow Duplicates",
+            "desc": "Prevent duplicates from being added to clipboard history, removes the previous item when a new duplicate is added.",
+            "section": "Settings",
+            "key": "no_duplicates"
+        })
 
         settingspanel.append({
             "type": "label",
