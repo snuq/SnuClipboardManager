@@ -19,7 +19,7 @@ Presets are stored as text files in a folder of your choosing, allowing for easy
 When first starting Snu Clipboard Manager, you will need to set a presets folder.  All created presets and preset categories will be created inside this folder.  
 Click on the 'Add Presets Folder' button and select an existing folder in the file browser window.  
 
-You can now click on the 'Edit Presets' button above and get started adding new folders and presets by clicking on the Green add buttons in the list on the left.  
+You can now click on the 'Edit' button above and get started adding new folders and presets by clicking on the Green add buttons in the list on the left.  
 
 To add presets, first at least one folder must be added, click the green 'Add Section' button in the list on the left, and enter a name for your folder.  
 You may now Click on the green 'Add Item' button below to create new presets.  
@@ -53,7 +53,7 @@ This Tab will show an extended view of all clipboard history.  Click on the red 
 
 The bottom half of the History tab will show an extended clipboard editor, all text edits in this will automatically update the current clipboard.  
 
-#### Edit Presets  
+#### Edit  
 Entering this tab will change the presets view on the left.  
 Note that while in this tab, the window will not automatically shrink when the mouse leaves, even if this setting is enabled.  
 
@@ -68,7 +68,7 @@ Presets and preset folders can be deleted by clicking the red 'X' button next to
 The 'Open Preset Folder' button on the right side will open the current preset folder in your system's file browser, allowing you to make changes to the contained files with a text editor of your choice.  
 When you make changes to the files, be sure to click the 'Reload Presets' button to ensure that the presets are all updated in Snu Clipboard Manager.  
 
-#### Select Presets  
+#### Select  
 This tab will allow selecting and editing of the preset folders.  
 
 You can see the current preset folder at the top of this window, click on a preset folder button below to change the current preset and update the list to the left.  
@@ -76,6 +76,15 @@ You can see the current preset folder at the top of this window, click on a pres
 Click on the 'Add Presets Folder' button and select an existing folder in the file browser window.  
 
 Click the red 'X' button next to a preset folder to remove it from the list.  Note that the folder itself or the presets stored in it will not be changed or removed by this action!  
+
+#### Search  
+This tab will allow searching all current presets.  
+
+Type in text to search for in the input field at the top, search results will be automatically updated.  
+
+Click on the 'Search Titles And Content' button to toggle clipboard preset content search off and on.  
+
+Clicking on a search result will set that preset as the current clipboard.  
 
 
 &nbsp;  
@@ -147,8 +156,8 @@ This program has a number of keyboard shortcuts to make quick usage easier.
 * Shift-Mouse Click - On a folder, this will expand that folder and minimize all others.
 * F1 - Opens the program settings panel.
 * F2 - This will toggle-expand the window, and show the 'History' tab.
-* F3 - This will toggle-expand the window, and show the 'Edit Presets' tab.
-* F4 - This will toggle-expand the window, and show the 'Select Presets' tab.
+* F3 - This will toggle-expand the window, and show the 'Edit' tab.
+* F4 - This will toggle-expand the window, and show the 'Select' tab.
 * ` (Backtick/Tilde) - Toggles the window in/out of expanded mode.
 * Alt-M - Minimize the window.
 * Alt-A - Toggle always-on-top mode for the window.

@@ -42,7 +42,7 @@
         warn: True
         on_release: app.delete_preset(root)
     NormalLabelClickable:
-        text: root.text
+        text: (root.section + '\\' + root.text) if root.show_folder else root.text
         on_release: app.clickfade(self)
         on_release: root.click()
 
@@ -180,14 +180,19 @@
                     on_release: editArea.current = 'history'
                     on_release: self.state = 'down'
                 WideToggle:
-                    text: 'Edit Presets'
+                    text: 'Edit'
                     state: 'down' if editArea.current == 'edit' else 'normal'
                     on_release: editArea.current = 'edit'
                     on_release: self.state = 'down'
                 WideToggle:
-                    text: 'Select Presets'
+                    text: 'Select'
                     state: 'down' if editArea.current == 'select' else 'normal'
                     on_release: editArea.current = 'select'
+                    on_release: self.state = 'down'
+                WideToggle:
+                    text: 'Search'
+                    state: 'down' if editArea.current == 'search' else 'normal'
+                    on_release: editArea.current = 'search'
                     on_release: self.state = 'down'
                 SettingsButton:
             ScreenManager:
@@ -269,6 +274,32 @@
                         NormalRecycleView:
                             data: app.clipboard_folders
                             viewclass: 'PresetFolder'
+                            SelectableRecycleBoxLayout:
+                                default_size: None, app.button_scale
+                                default_size_hint: 1, None
+                                orientation: 'vertical'
+                                size_hint_x: 1
+                                size_hint_y: None
+                                height: self.minimum_height
+                SearchScreen:
+                    name: 'search'
+                    MainArea:
+                        orientation: 'vertical'
+                        LeftNormalLabel:
+                            text: "  Search For:"
+                        NormalInput:
+                            text: app.search_text
+                            on_text: app.search_text = self.text
+                            on_text: app.search()
+                        WideToggle:
+                            text: 'Search Titles And Content' if app.search_content else 'Search Titles Only'
+                            state: 'down' if app.search_content else 'normal'
+                            on_release: app.search()
+                            on_release: app.search_content = not app.search_content
+                        MediumSpacer:
+                        NormalRecycleView:
+                            data: app.search_results
+                            viewclass: 'ClipPreset'
                             SelectableRecycleBoxLayout:
                                 default_size: None, app.button_scale
                                 default_size_hint: 1, None

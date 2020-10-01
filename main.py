@@ -17,7 +17,6 @@
 # ##### END GPL LICENSE BLOCK #####
 
 #Future ideas (just possibilities):
-#   Add search screen, option to search just titles or titles/content
 #   Add special add-able/clear-able preset mode (just adds more lines to end of preset with a '+' button)
 #   New preset folder type - FTP - load/save files from ftp
 #   Encrypted files - option to store password locally (for remote/ftp files), or require password to access preset folder
@@ -48,6 +47,11 @@ Config.set('input', 'mouse', 'mouse,disable_multitouch')
 app = None
 
 
+class SearchScreen(Screen):
+    def on_enter(self):
+        app.search()
+
+
 class EditScreen(Screen):
     def on_enter(self):
         app.load_clipboards(edit=True)
@@ -70,6 +74,7 @@ class ClipPreset(RecycleItem, BoxLayout):
     section = StringProperty('')
     section_folder = StringProperty('')
     path = StringProperty('')
+    show_folder = BooleanProperty(False)
 
     def click(self):
         if self.viewtype == 'adder-item':
@@ -90,11 +95,12 @@ class ClipPreset(RecycleItem, BoxLayout):
             else:
                 app.toggle_hide_section(self.text)
         else:
-            if app.ctrl_pressed:
+            if app.ctrl_pressed and not self.show_folder:
                 app.root.ids.editArea.current = 'edit'
                 app.settings_mode()
                 app.edit_preset(self)
             else:
+                app.edit_preset(self)
                 app.set_clipboard(self.clipboard)
 
 
@@ -168,6 +174,23 @@ class SnuClipboardManager(NormalApp):
     edit_section = StringProperty()
     edit_content = StringProperty()
 
+    search_text = StringProperty()
+    search_results = ListProperty()
+    search_content = BooleanProperty(True)
+
+    def search(self, *_):
+        data = []
+        if self.search_text:
+            search_text = self.search_text.lower()
+            for clip in self.clipboard_data:
+                if clip['viewtype'] == 'item':
+                    if (search_text in clip['text'].lower()) or (self.search_content and search_text in clip['clipboard'].lower()):
+                        new_clip = clip.copy()
+                        new_clip['hidden'] = False
+                        new_clip['show_folder'] = True
+                        data.append(new_clip)
+        self.search_results = data
+
     def dismiss_popup(self, *_):
         if self.popup is not None:
             try:
@@ -236,7 +259,7 @@ class SnuClipboardManager(NormalApp):
         self.load_hiddens()
         self.clipboard_data = []
         if edit:
-            self.clipboard_data.append({'text': 'Add Section', 'viewtype': 'adder-heading', 'hidden': False, 'section': self.clipboard_folder, 'path': self.clipboard_folder})
+            self.clipboard_data.append({'text': 'Add Section', 'viewtype': 'adder-heading', 'hidden': False, 'section': self.clipboard_folder, 'path': self.clipboard_folder, 'show_folder': False})
         if os.path.isdir(self.clipboard_folder):
             sections = os.listdir(self.clipboard_folder)
             for section in sections:
@@ -246,9 +269,9 @@ class SnuClipboardManager(NormalApp):
                     hidden = False
                 section_folder = os.path.join(self.clipboard_folder, section)
                 if os.path.isdir(section_folder):
-                    self.clipboard_data.append({'text': section, 'viewtype': 'heading', 'hidden': hidden, 'section': section, 'path': section_folder, 'section_folder': self.clipboard_folder})
+                    self.clipboard_data.append({'text': section, 'viewtype': 'heading', 'hidden': hidden, 'section': section, 'path': section_folder, 'section_folder': self.clipboard_folder, 'show_folder': False})
                     if edit:
-                        self.clipboard_data.append({'text': 'Add Item', 'viewtype': 'adder-item', 'hidden': hidden, 'section': section, 'path': section_folder, 'section_folder': self.clipboard_folder})
+                        self.clipboard_data.append({'text': 'Add Item', 'viewtype': 'adder-item', 'hidden': hidden, 'section': section, 'path': section_folder, 'section_folder': self.clipboard_folder, 'show_folder': False})
                     for file in os.listdir(section_folder):
                         fullpath = os.path.join(section_folder, file)
                         if os.path.isfile(fullpath):
@@ -257,7 +280,7 @@ class SnuClipboardManager(NormalApp):
                                     data = datafile.read()
                                 except:
                                     continue
-                            self.clipboard_data.append({'text': os.path.splitext(file)[0], 'viewtype': 'item', 'clipboard': data, 'hidden': hidden, 'section': section, 'path': fullpath, 'section_folder': section_folder})
+                            self.clipboard_data.append({'text': os.path.splitext(file)[0], 'viewtype': 'item', 'clipboard': data, 'hidden': hidden, 'section': section, 'path': fullpath, 'section_folder': section_folder, 'show_folder': False})
         self.update_display_clipboards()
 
     def toggle_hide_section(self, section, hide_others=False):
