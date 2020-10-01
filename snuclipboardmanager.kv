@@ -23,6 +23,12 @@
         Rectangle:
             pos: self.pos
             size: self.size[0], 4
+    canvas.after:
+        Color:
+            rgba: 0, 0, 1, (.5 if app.edit_path == self.path and self.edit else 0)
+        Rectangle:
+            pos: self.pos
+            size: self.size
     adder: self.viewtype in ['adder-item', 'adder-heading']
     edit: app.root.ids.editArea.current == 'edit' and app.modify_mode and not self.adder
     size_hint_y: None
@@ -234,15 +240,18 @@
                             text: '  Editing: '+app.edit_path
                         WideButton:
                             text: 'Save'
+                            disabled: not app.edit_path
                             on_release: app.save_edit()
                         NormalInput:
                             multiline: False
+                            disabled: not app.edit_path
                             text: app.edit_name
                             on_text: app.edit_name = self.text
                         LeftNormalLabel:
                             text: '  Content:'
                         NormalInput:
                             id: editContentArea
+                            disabled: not app.edit_path
                             size_hint_y: 1
                             text: app.edit_content
                             on_text: app.edit_content = self.text

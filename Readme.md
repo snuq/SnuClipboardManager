@@ -143,7 +143,7 @@ Extra scale to control the size of text inside other elements.  This should not 
 ## Shortcuts  
 This program has a number of keyboard shortcuts to make quick usage easier.
 
-* Ctrl-Mouse Click - On a folder or preset, will open the 'quick add' dialog to add the current clipboard as a new preset within that folder.
+* Ctrl-Mouse Click - On a folder, will open the 'quick add' dialog to add the current clipboard as a new preset within that folder.  On a preset, will enter edit mode for that preset.  
 * Shift-Mouse Click - On a folder, this will expand that folder and minimize all others.
 * F1 - Opens the program settings panel.
 * F2 - This will toggle-expand the window, and show the 'History' tab.

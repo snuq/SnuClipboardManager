@@ -17,6 +17,8 @@
 # ##### END GPL LICENSE BLOCK #####
 
 #Future ideas (just possibilities):
+#   Add search screen, option to search just titles or titles/content
+#   Add special add-able/clear-able preset mode (just adds more lines to end of preset with a '+' button)
 #   New preset folder type - FTP - load/save files from ftp
 #   Encrypted files - option to store password locally (for remote/ftp files), or require password to access preset folder
 
@@ -89,7 +91,9 @@ class ClipPreset(RecycleItem, BoxLayout):
                 app.toggle_hide_section(self.text)
         else:
             if app.ctrl_pressed:
-                app.instant_add(self.section_folder, self.section)
+                app.root.ids.editArea.current = 'edit'
+                app.settings_mode()
+                app.edit_preset(self)
             else:
                 app.set_clipboard(self.clipboard)
 
@@ -165,7 +169,12 @@ class SnuClipboardManager(NormalApp):
     edit_content = StringProperty()
 
     def dismiss_popup(self, *_):
-        self.popup = None
+        if self.popup is not None:
+            try:
+                self.popup.dismiss()
+            except:
+                pass
+            self.popup = None
 
     def rescale_interface(self, *_, force=False):
         """Called when the window changes resolution, calculates variables dependent on screen size"""
@@ -350,8 +359,7 @@ class SnuClipboardManager(NormalApp):
             confirm_text = "This entire section of presets will be deleted permanently"
         else:
             confirm_text = "This single preset will be deleted permanently"
-        if self.popup:
-            self.popup.dismiss()
+        self.dismiss_popup()
         content = ConfirmPopupContent(text=confirm_text, yes_text='Delete', no_text="Don't Delete", warn_yes=True)
         content.bind(on_answer=self.delete_preset_answer)
         self.popup = NormalPopup(title="Confirm Delete ", content=content, size_hint=(1, None), size=(1000, self.button_scale * 4))
@@ -359,7 +367,7 @@ class SnuClipboardManager(NormalApp):
         self.popup.open()
 
     def delete_preset_answer(self, instance, answer):
-        self.popup.dismiss()
+        self.dismiss_popup()
         if answer == 'yes':
             if self.preset_type == 'item':
                 if os.path.isfile(self.preset_element):
@@ -391,7 +399,7 @@ class SnuClipboardManager(NormalApp):
 
     def rename_folder_answer(self, instance, answer):
         new_name = instance.ids["input"].text.strip(' ')
-        self.popup.dismiss()
+        self.dismiss_popup()
         if not new_name:
             return
         if answer == 'yes':
@@ -427,9 +435,15 @@ class SnuClipboardManager(NormalApp):
         except Exception as e:
             app.message_popup(text="Unable to write to file: "+str(e), title="Warning")
 
+    def clear_edit(self, *_):
+        self.edit_content = ''
+        self.edit_name = ''
+        self.edit_name_original = ''
+        self.edit_path = ''
+        self.edit_section = ''
+
     def instant_add(self, path, section):
-        if self.popup:
-            self.popup.dismiss()
+        self.dismiss_popup()
         if not self.modify_mode:
             self.settings_mode()
         self.edit_type = 'item'
@@ -443,19 +457,22 @@ class SnuClipboardManager(NormalApp):
         content.bind(on_answer=self.instant_add_preset_answer)
         self.popup = NormalPopup(title='Create File', content=content, size_hint=(1, 1), size=(1000, 2000))
         self.popup.bind(on_dismiss=self.dismiss_popup)
+        self.popup.bind(on_dismiss=self.clear_edit)
         self.popup.open()
 
     def instant_add_preset_answer(self, instance, answer):
-        self.popup.dismiss()
+        self.dismiss_popup()
         if answer == 'yes':
             filename = os.path.join(self.edit_path, self.edit_name) + '.txt'
             if os.path.exists(filename):
                 self.message_popup(text="File already exists!", title="Warning")
+                self.clear_edit()
                 return
             file = open(filename, 'w')
             file.write(self.edit_content)
             file.close()
             self.load_clipboards()
+        self.clear_edit()
 
     def add_preset(self, preset_type, preset_location):
         self.preset_type = preset_type
@@ -468,8 +485,7 @@ class SnuClipboardManager(NormalApp):
             input_text = "Add a preset with the name:"
             hint_text = "Preset Name"
             title_text = "Create File"
-        if self.popup:
-            self.popup.dismiss()
+        self.dismiss_popup()
 
         content = InputPopupContent(text=input_text, hint=hint_text)
         content.bind(on_answer=self.add_preset_answer)
@@ -479,7 +495,7 @@ class SnuClipboardManager(NormalApp):
 
     def add_preset_answer(self, instance, answer):
         preset_name = instance.ids['input'].text.strip(' ')
-        self.popup.dismiss()
+        self.dismiss_popup()
         if not preset_name:
             return
         if answer == 'yes':
