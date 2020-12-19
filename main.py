@@ -16,7 +16,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-#Bug: enter in quick add dialog will close dialog, not add line return, need to check if input is active first
 #Enhance: when adding a new preset or editing one, expand that section afteward, scroll to that section while editing
 
 #Future ideas (just possibilities):
@@ -995,6 +994,16 @@ class SnuClipboardManager(NormalApp):
                     break
         return input_active
 
+    def check_for_active_input(self, root):
+        #Walks widget tree and checks for an active multiline text input, returns that input if found, otherwise returns None
+
+        has_input = None
+        for widget in root.walk(restrict=True):
+            if isinstance(widget, TextInput):
+                if widget.focus:
+                    return widget
+        return has_input
+
     def hook_keyboard(self, window, scancode, *_):
         """This function receives keyboard events"""
 
@@ -1011,7 +1020,9 @@ class SnuClipboardManager(NormalApp):
         if scancode == 13:
             #enter key
             if self.popup:
-                self.popup.content.dispatch('on_answer', 'yes')
+                has_input = self.check_for_active_input(self.popup)
+                if has_input is not None:
+                    self.popup.content.dispatch('on_answer', 'yes')
         if scancode == 96:
             #tilde key
             if self.alt_pressed or self.ctrl_pressed or not self.text_input_active():
