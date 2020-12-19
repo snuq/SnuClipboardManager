@@ -16,6 +16,9 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+#Bug: enter in quick add dialog will close dialog, not add line return, need to check if input is active first
+#Enhance: when adding a new preset or editing one, expand that section afteward, scroll to that section while editing
+
 #Future ideas (just possibilities):
 #   Add special add-able/clear-able preset mode (just adds more lines to end of preset with a '+' button)
 #   New preset folder type - FTP - load/save files from ftp
