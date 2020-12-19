@@ -4,6 +4,7 @@ from kivy.properties import ListProperty
 from kivy.lang.builder import Builder
 Builder.load_string("""
 <Scroller>:
+    always_overscroll: False
     scroll_distance: 10
     scroll_timeout: 100
     bar_width: int(app.button_scale * .5)

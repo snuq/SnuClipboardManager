@@ -16,8 +16,6 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
-#Enhance: when adding a new preset or editing one, expand that section afteward, scroll to that section while editing
-
 #Future ideas (just possibilities):
 #   Add special add-able/clear-able preset mode (just adds more lines to end of preset with a '+' button)
 #   New preset folder type - FTP - load/save files from ftp
@@ -100,6 +98,7 @@ class ClipPreset(RecycleItem, BoxLayout):
             if app.ctrl_pressed and not self.show_folder:
                 app.root.ids.editArea.current = 'edit'
                 app.settings_mode()
+                app.scroll_presets_to(self.section, self.path)
                 app.edit_preset(self)
             else:
                 app.edit_preset(self)
@@ -467,17 +466,34 @@ class SnuClipboardManager(NormalApp):
         self.edit_path = ''
         self.edit_section = ''
 
+    def scroll_presets_to(self, section, item):
+        scroll_to_index = None
+        preset_area = self.root.ids['presets']
+        for index, data in enumerate(preset_area.data):
+            if not item:
+                if data['viewtype'] == 'heading' and data['section'] == section:
+                    scroll_to_index = index + 2
+                    break
+            else:
+                if data['section'] == section and data['viewtype'] == 'item' and data['path'] == item:
+                    scroll_to_index = index
+                    break
+        if scroll_to_index is not None:
+            preset_area.scroll_to_index(scroll_to_index)
+
     def instant_add(self, path, section):
         self.dismiss_popup()
         if not self.modify_mode:
             self.settings_mode()
+        self.root.ids.editArea.current = 'edit'
+        self.load_clipboards(edit=True)
         self.edit_type = 'item'
         self.edit_path = path
         self.edit_name = ''
         self.edit_name_original = ''
         self.edit_section = section
         self.edit_content = self.current_clipboard
-
+        self.scroll_presets_to(section, '')
         content = InstantAddPresetContent()
         content.bind(on_answer=self.instant_add_preset_answer)
         self.popup = NormalPopup(title='Create File', content=content, size_hint=(1, 1), size=(1000, 2000))
