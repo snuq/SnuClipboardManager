@@ -46,6 +46,10 @@ from kivy.config import Config
 Config.set('input', 'mouse', 'mouse,disable_multitouch')
 app = None
 
+if platform == 'win':
+    import ctypes
+    ctypes.windll.shcore.SetProcessDpiAwareness(1)
+
 
 class SearchScreen(Screen):
     def on_enter(self):
